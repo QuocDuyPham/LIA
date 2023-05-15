@@ -6,7 +6,7 @@ int actuator = 6;
 int PV = 0;
 int setPoint = 0;
 int CO = 0;
-int HYS = 30;
+int HYS = 10;
 int ST = 0;
 
 
@@ -86,7 +86,7 @@ Serial.print(PV);
    if (currentPage == 0) {
      setPoint += 30;
    } else if (currentPage == 3) {
-     HYS += 30;
+     HYS += 2;
    }
    lastButtonPress3 = millis();
  }
@@ -95,9 +95,9 @@ Serial.print(PV);
 
  if (!buttonState4 && lastButtonState4 && (millis() - lastButtonPress4) > debounceDelay) {
    if (currentPage == 0) {
-     setPoint -= 20 ;
+     setPoint -= 30;
    } else if (currentPage == 3) {
-     HYS -= 20;
+     HYS -= 2;
    }
    lastButtonPress4 = millis();
  }
@@ -129,12 +129,12 @@ Serial.print(PV);
      break;
 
  }
- delay(10);
+
 
   PV = analogRead(sensor);
-if (PV <= (setPoint - HYS )) {
+if (PV <(setPoint - HYS)){
    CO = 255;
- } else if (PV >= (setPoint+ HYS )) {
+ } if (PV >= (setPoint+ HYS)){
    CO = 0;
  }
  analogWrite(actuator, CO);
