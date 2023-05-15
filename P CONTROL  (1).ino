@@ -15,7 +15,7 @@ int actuator = 6;
 int PV = 0;
 int setPoint = 0;
 int CO = 0;
-float pGain = 0.1;
+float pGain = 0.01;
 int Error = 0;
 
 
@@ -59,6 +59,9 @@ void loop() {
      {
        CO = 0;
         }  
+     if (Error < 0){
+      Error = 0;
+     }
   analogWrite(actuator, CO); 
  // Debounce and button actions
  PBLstate = digitalRead(PBL);
@@ -84,13 +87,13 @@ Serial.print(setPoint);
 //Serial.print("\t  CO = ");
 //Serial.print(CO);
 Serial.print("\t  PV = ");
-Serial.print(PV);
-Serial.print("\t  CO = ");
-Serial.print(CO);
-Serial.print("\t  Error = ");
-Serial.print(Error);
-Serial.print("\t  pGain = ");
-Serial.println(pGain);
+Serial.println(PV);
+//Serial.print("\t  CO = ");
+//Serial.print(CO);
+//Serial.print("\t  Error = ");
+//Serial.println(Error);
+//Serial.print("\t  pGain = ");
+//Serial.println(pGain);
 //Serial.print("\t  Screen: ");
 //Serial.println(Screen);
  
@@ -114,7 +117,7 @@ Serial.println(pGain);
    if (Screen == 0) {
      setPoint+=50;
    } else if (Screen == 1) {
-     pGain+=0.1;
+     pGain+=0.01;
    }
    lastButtonPressU = millis();
  }
@@ -125,7 +128,7 @@ Serial.println(pGain);
    if (Screen == 0) {
      setPoint-=50;
    } else if (Screen == 1) {
-     pGain-=0.1;
+     pGain-=0.01;
    }
    lastButtonPressD = millis();
  }
