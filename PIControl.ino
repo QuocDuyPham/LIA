@@ -48,6 +48,26 @@ void loop() {
  buttonState3 = digitalRead(buttonPin3);
  buttonState4 = digitalRead(buttonPin4);
 
+   // put your main code here, to run repeatedly:
+PV = analogRead(sensor);
+currentMillis = millis();
+
+if (currentMillis - previousMillis >= interval){
+  previousMillis = currentMillis;
+  Error = setPoint-PV;
+  int Ierror= (iGain*integralAction);
+  integralAction = (integralAction + Error);
+  CO = ((pGain *Error)+(Ierror));
+if ( Ierror >=255){
+  Ierror = 255;
+}
+  if (CO > 255) {
+  CO = 255; // If CO is greater than 255, set it to 255
+} if (CO < 0) {
+  CO = 0; // If CO is less than 0, set it to 0
+}
+}
+analogWrite(actuator, CO);
   if (!buttonState1 && lastButtonState1 && (millis() - lastButtonPress1) > debounceDelay) {
    currentPage--;
    if (currentPage < 0) currentPage = 3;
@@ -68,10 +88,10 @@ void loop() {
    if (currentPage == 0) {
      setPoint += 30;
    } else if (currentPage == 2) {
-     pGain += 0.1;
+     pGain += 0.01;
    }
    else if (currentPage == 3) {
-     iGain += 0.1;
+     iGain += 0.01;
    }
    lastButtonPress3 = millis();
  }
@@ -82,10 +102,10 @@ void loop() {
    if (currentPage == 0) {
      setPoint -= 20 ;
    } else if (currentPage == 2) {
-     pGain -= 0.1;
+     pGain -= 0.01;
    }
    else if (currentPage == 3) {
-     iGain -= 0.1;
+     iGain -= 0.01;
    }
    lastButtonPress4 = millis();
  }
@@ -122,37 +142,19 @@ void loop() {
  }
  delay(10);
  
- 
- 
-  // put your main code here, to run repeatedly:
-PV = analogRead(sensor);
-currentMillis = millis();
 
-if (currentMillis - previousMillis >= interval){
-  previousMillis = currentMillis;
-  Error = setPoint-PV;
-  integralAction = (integralAction + Error);
-  CO = ((pGain *Error)+(iGain*integralAction)/20);
-
-  if (CO > 255) {
-  CO = 255; // If CO is greater than 255, set it to 255
-} if (CO < 0) {
-  CO = 0; // If CO is less than 0, set it to 0
-}
-analogWrite(actuator, CO);
   
   Serial.print("SP = ");
   Serial.print(setPoint);
-  Serial.print("\t CO = ");
-  Serial.print(CO);
+//  Serial.print("\t CO = ");
+//  Serial.print(CO);
   Serial.print("\t PV = ");
   Serial.print(PV);
   //Serial.print("\t P Gain = ");
   //Serial.print(pGain);
  // Serial.print("\t I Gain = ");
   //Serial.print(iGain);
-  Serial.print("\t Error :");
-Serial.print(Error);
+//  Serial.print("\t Error :");
+//Serial.print(Error);
 Serial.println();
-}
 }
