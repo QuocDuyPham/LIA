@@ -1,5 +1,5 @@
 int sensor = A1;
-int intputPin= A5;
+int intputPin= A3;
 int actuator = 7;
 int PV = 0;
 int inputValue = 0;
