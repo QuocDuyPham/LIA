@@ -1,22 +1,33 @@
+// Proportional control ()
+// By identifying the process variable (PV) using an analog sensor (LDR), proportional control is implemented in this code. 
+// The error (SP - PV) and proportional gain (pGain) are used to calculate the control output (CO), which controls the LED's brightness.
+
+// Four pushbuttons are also used, two of which are used as up and down arrows to change the setpoint and p Gain. 
+// The LCD display's left and right pushbuttons are used to switch between its various screens. 
+// Both the serial monitor and the LCD screen show the values for the process variable (PV), setpoint (SP), control output (CO), error, and p Gain.
+
+
+
+
 // Include LiquidCrystal library for managing with LCD screen
 #include <LiquidCrystal.h>
 // Initialize the library by associating any needed LCD interfere pin
 // with the arduino pin number it is connected to
 LiquidCrystal lcd(12,11,5,4,3,2);
 
-// Pushbuttons
+// Declare Pins for Pushbuttons 
 const int PBU = 10;
 const int PBD = 9;
 const int PBL = 8;
 const int PBR = 7;
 
-int sensor = A5;
-int actuator = 6;
-int PV = 0;
-int setPoint = 0;
-int CO = 0;
-float pGain = 0.01;
-int Error = 0;
+int sensor = A5; // Set the pin for the LDR sensor
+int actuator = 6;  // Select the pin for the LED
+int PV = 0;     // Process variable 
+int setPoint = 0; // Setpoint variable value
+int CO = 0;   // Control output value
+float pGain = 0.01;  // Declare the Proportional Gain variable
+int Error = 0;  // Declare a variable to store the Error
 
 
  
@@ -35,33 +46,37 @@ int Screen = 0;
 
 
 void setup() {
-pinMode(actuator, OUTPUT);
- Serial.begin(9600);
- lcd.begin(16, 2);
- pinMode(PBL, INPUT_PULLUP);
- pinMode(PBR, INPUT_PULLUP);
- pinMode(PBU, INPUT_PULLUP);
- pinMode(PBD, INPUT_PULLUP);
+pinMode(actuator, OUTPUT); // Declare Actuator as OUTPUT
+ Serial.begin(9600); // Initialize Serial Monitor with baud rate of 9600
+ lcd.begin(16, 2);  // Set up LCD's number of colums and rows   
+ pinMode(PBL, INPUT_PULLUP); // Declare PB1 as an INPUT PULLUP
+ pinMode(PBR, INPUT_PULLUP); // Declare PB2 as an INPUT PULLUP 
+ pinMode(PBU, INPUT_PULLUP); // Declare PB3 as an INPUT PULLUP
+ pinMode(PBD, INPUT_PULLUP); // Declare PB4 as an INPUT PULLUP
 }
 
 
 void loop() {
+ // Read the sensor's value
   PV = analogRead(sensor);
+  // Calculate the Error
      Error = setPoint - PV;
+  // Calculate control output (CO) by multiplying the Erro by the p Gain
     CO = (pGain * Error); 
 
 
       if (CO >255)
    {
-       CO = 255;
+       CO = 255;  // the max value of CO to not exceed 255
      }
      if (CO<0)
      {
-       CO = 0;
+       CO = 0; // the min value of CO to not exceed 255
         }  
      if (Error < 0){
-      Error = 0;
+      Error = 0; // Make sure that the Error won't below 0
      }
+ // Writing the CO to the LED
   analogWrite(actuator, CO); 
  // Debounce and button actions
  PBLstate = digitalRead(PBL);
@@ -100,17 +115,18 @@ Serial.println(PV);
  if (!PBLstate && lastButtonStateL && (millis() - lastButtonPressL) > debounceDelay) {
    Screen = 0;
    //if (Screen < 0) Screen= 1;
-   lastButtonPressL = millis();
+   lastButtonPressL = millis(); // Update the last time PBL press 
  }
- lastButtonStateL = PBLstate;
+ lastButtonStateL = PBLstate; // Store current PBL state
 
 
  if (!PBRstate && lastButtonStateR && (millis() - lastButtonPressR) > debounceDelay) {
    Screen = 1;
   // if (Screen > 1) Screen = 0;
-   lastButtonPressR = millis();
+   lastButtonPressR = millis(); // Update the last time PBR press 
  }
- lastButtonStateR = PBRstate;
+ lastButtonStateR = PBRstate; // Store current PBR state
+
 
 
    if (!PBUstate && lastButtonStateU && (millis() - lastButtonPressU) > debounceDelay) {
@@ -119,9 +135,9 @@ Serial.println(PV);
    } else if (Screen == 1) {
      pGain+=0.01;
    }
-   lastButtonPressU = millis();
+   lastButtonPressU = millis(); // Update the last time PBU press 
  }
- lastButtonStateU = PBUstate;
+ lastButtonStateU = PBUstate;  // Store current PBU state
 
 
  if (!PBDstate && lastButtonStateD && (millis() - lastButtonPressD) > debounceDelay) {
@@ -130,9 +146,9 @@ Serial.println(PV);
    } else if (Screen == 1) {
      pGain-=0.01;
    }
-   lastButtonPressD = millis();
+   lastButtonPressD = millis(); // Update the last time PBD press 
  }
- lastButtonStateD = PBDstate;
+ lastButtonStateD = PBDstate;  // Store current PBD state
 
 
  // Update the LCD display based on currentPage
