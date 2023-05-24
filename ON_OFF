@@ -1,13 +1,20 @@
-#include <LiquidCrystal.h>  //include the LiquidCrystal library for LCD control
+Control: ON/OFF
+This code uses an analog sensor (LDR) and an actuator (LED) to implement an ON/OFF control system with hysteresis.
+The analog sensor is used to control the actuator. 
+Four pushbuttons are also used, two of which are used as up and down arrows to change the hysteresis and setpoint. 
+The LCD display's left and right pushbuttons are used to switch between its various screens. 
+Process variable (PV), setpoint (SP), control output (CO), and hysteresis values are shown on the LCD screen as well as the serial monitor.
+*/
 
 
-int sensor = A5;
-int actuator = 6;
-int PV = 0;
-int setPoint = 0;
-int CO = 0;
-int HYS = 10;
-int ST = 0;
+
+int sensor = A5;  // Set pin for the LDR 
+int actuator = 6; // digital pin for the LED
+int PV = 0;       // PV (also the LDR value)
+int setPoint = 0; // Setpoint variable value
+int CO = 0;  // Control output value
+int HYS = 10;  // Hysteresis starting value
+int ST = 0; // sreen number 
 
 
 // Pushbuttons
@@ -26,20 +33,20 @@ const unsigned long debounceDelay = 50;
 // LCD page variable
 int currentPage = 0;
 
-
+#include <LiquidCrystal.h>  //include the LiquidCrystal library for LCD control
 // LCD pin connections
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 
 void setup() {
- lcd.begin(16, 2);
- pinMode(actuator, OUTPUT);
- pinMode(buttonPin1, INPUT_PULLUP);
- pinMode(buttonPin2, INPUT_PULLUP);
- pinMode(buttonPin3, INPUT_PULLUP);
- pinMode(buttonPin4, INPUT_PULLUP);
- Serial.begin(9600);
+ lcd.begin(16, 2);  // Set up LCD's number of colums and rows     
+ pinMode(actuator, OUTPUT); // Declare Actuator as OUTPUT
+ pinMode(buttonPin1, INPUT_PULLUP); // Declare pushbutton #1 as an INPUT PULLUP
+ pinMode(buttonPin2, INPUT_PULLUP); // Declare pushbutton #2 as an INPUT PULLUP
+ pinMode(buttonPin3, INPUT_PULLUP); // Declare pushbutton #3 as an INPUT PULLUP
+ pinMode(buttonPin4, INPUT_PULLUP); // Declare pushbutton #4 as an INPUT PULLUP
+ Serial.begin(9600); // Initialize Serial Monitor with baud rate of 9600
 }
 
 
@@ -48,12 +55,12 @@ void loop() {
 
 
  // Debounce and button actions
- buttonState1 = digitalRead(buttonPin1);
- buttonState2 = digitalRead(buttonPin2);
- buttonState3 = digitalRead(buttonPin3);
- buttonState4 = digitalRead(buttonPin4);
+ buttonState1 = digitalRead(buttonPin1);  // Read state of PB1
+ buttonState2 = digitalRead(buttonPin2);  // Read state of PB2
+ buttonState3 = digitalRead(buttonPin3);  // Read state of PB3
+ buttonState4 = digitalRead(buttonPin4);  // Read state of PB4
 
-
+ //  Print SP, PV and CO on the Serial Monitor
 Serial.print(" \t SP = ");
 Serial.print(setPoint);
 Serial.print(" \t CO = ");
@@ -69,17 +76,17 @@ Serial.print(PV);
  if (!buttonState1 && lastButtonState1 && (millis() - lastButtonPress1) > debounceDelay) {
    currentPage--;
    if (currentPage < 0) currentPage = 3;
-   lastButtonPress1 = millis();
+   lastButtonPress1 = millis();  // Update the last time PB1 press 
  }
- lastButtonState1 = buttonState1;
+ lastButtonState1 = buttonState1; // Store current PB1 state
 
 
  if (!buttonState2 && lastButtonState2 && (millis() - lastButtonPress2) > debounceDelay) {
    currentPage++;
    if (currentPage > 3) currentPage = 0;
-   lastButtonPress2 = millis();
+   lastButtonPress2 = millis(); // Update the last time PB2 press 
  }
- lastButtonState2 = buttonState2;
+ lastButtonState2 = buttonState2; // Store current PB2 state
 
 
    if (!buttonState3 && lastButtonState3 && (millis() - lastButtonPress3) > debounceDelay) {
@@ -88,9 +95,9 @@ Serial.print(PV);
    } else if (currentPage == 3) {
      HYS += 2;
    }
-   lastButtonPress3 = millis();
+   lastButtonPress3 = millis(); // Update the last time PB3 press 
  }
- lastButtonState3 = buttonState3;
+ lastButtonState3 = buttonState3; // Store current PB3 state
 
 
  if (!buttonState4 && lastButtonState4 && (millis() - lastButtonPress4) > debounceDelay) {
@@ -99,9 +106,9 @@ Serial.print(PV);
    } else if (currentPage == 3) {
      HYS -= 2;
    }
-   lastButtonPress4 = millis();
+   lastButtonPress4 = millis(); // Update the last time PB4 press 
  }
- lastButtonState4 = buttonState4;
+ lastButtonState4 = buttonState4; // Store current PB4 state
 
 
  // Update the LCD display based on currentPage
@@ -133,10 +140,11 @@ Serial.print(PV);
 
   PV = analogRead(sensor);
 if (PV <(setPoint - HYS)){
-   CO = 255;
+   CO = 255; // Set CO to 255 if PV is below (setpoint - hysteresis)
  } if (PV >= (setPoint+ HYS)){
-   CO = 0;
+   CO = 0;  // Set CO to 0 if PV is above (setpoint - hysteresis)
  }
+  // Writing CO to the LED
  analogWrite(actuator, CO);
 }
 
