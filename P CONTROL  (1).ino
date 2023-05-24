@@ -78,7 +78,7 @@ void loop() {
      }
  // Writing the CO to the LED
   analogWrite(actuator, CO); 
- // Debounce and button actions
+ // Read the values of four PB
  PBLstate = digitalRead(PBL);
  PBRstate = digitalRead(PBR);
  PBUstate = digitalRead(PBU);
@@ -131,9 +131,9 @@ Serial.println(PV);
 
    if (!PBUstate && lastButtonStateU && (millis() - lastButtonPressU) > debounceDelay) {
    if (Screen == 0) {
-     setPoint+=50;
+     setPoint+=50; // Increase SP by 50 if on the first(0) screen
    } else if (Screen == 1) {
-     pGain+=0.01;
+     pGain+=0.01;  // Increase pGain by 0.01 if on the second(1) screen
    }
    lastButtonPressU = millis(); // Update the last time PBU press 
  }
@@ -142,9 +142,9 @@ Serial.println(PV);
 
  if (!PBDstate && lastButtonStateD && (millis() - lastButtonPressD) > debounceDelay) {
    if (Screen == 0) {
-     setPoint-=50;
+     setPoint-=50; // Decrease SP by 50 if on the first(0) screen
    } else if (Screen == 1) {
-     pGain-=0.01;
+     pGain-=0.01;  // Decrease pGai by 0.01 if on the second(1) screen
    }
    lastButtonPressD = millis(); // Update the last time PBD press 
  }
