@@ -91,9 +91,9 @@ Serial.print(PV);
 
    if (!buttonState3 && lastButtonState3 && (millis() - lastButtonPress3) > debounceDelay) {
    if (currentPage == 0) {
-     setPoint += 30;
+     setPoint += 30; // Increase SP by 30 if on the screen 0
    } else if (currentPage == 3) {
-     HYS += 2;
+     HYS += 30 ; // Increase HYS by 30 if on the screen 3
    }
    lastButtonPress3 = millis(); // Update the last time PB3 press 
  }
@@ -102,9 +102,9 @@ Serial.print(PV);
 
  if (!buttonState4 && lastButtonState4 && (millis() - lastButtonPress4) > debounceDelay) {
    if (currentPage == 0) {
-     setPoint -= 30;
+     setPoint -= 30;  // Decrease SP by 30 if on the screen 0
    } else if (currentPage == 3) {
-     HYS -= 2;
+     HYS -= 30 ; // Decrease HYS by 30 if on the screen 3
    }
    lastButtonPress4 = millis(); // Update the last time PB4 press 
  }
