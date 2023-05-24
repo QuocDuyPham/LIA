@@ -1,17 +1,24 @@
+// Proportional Integral Control
+// This code implements a proportional integral control system that measures the process variable (PV) with an analog sensor (LDR). 
+// The control output (CO), which regulates the LED's brightness, is calculated using the error (SP - PV), proportional (pGain), and integral (iGain) gains.
+// Four pushbuttons are also used, two of which, p Gain and i Gain, are used as up and down arrows to change the setpoint. 
+// The LCD display's left and right pushbuttons are used to switch between its various screens. 
+// Both the Serial Monitor and the LCD screen show the values of the process variable (PV), setpoint (SP), control output (CO), error, p Gain, and i Gain.
+
 #include <LiquidCrystal.h> 
-int sensor = A5;
-int actuator = 6;
-int PV =0;
-int setPoint = 0;
-int CO = 0;
-int Error = 0;
-float pGain = 0.01;
-float iGain = 0.01;
-int integralAction;
+int sensor = A5;  // Declare pin for the LDR sensor
+int actuator = 6;  // Declare the pin for the LED
+int PV =0;        // Process variable 
+int setPoint = 0; // Setpoint variable value
+int CO = 0;    // Control output 
+int Error = 0;  // Declare a variable to store the Error
+float pGain = 0.01;   // Declare the Proportional Gain variable
+float iGain = 0.01;  // Declare the Integral Gain variable
+int integralAction; // Declare Integral Action value    
 unsigned long previousMillis = 0; 
 const long interval = 100;
 unsigned long currentMillis; 
-// Pushbuttons
+// Declare the PinS for Pushbuttons
 const int buttonPin1 = 10;
 const int buttonPin2 = 9;
 const int buttonPin3 = 8;
@@ -32,34 +39,37 @@ int currentPage = 0;
 
 void setup() {
   // put your setup code here, to run once:
-  lcd.begin(16, 2);
-pinMode(actuator, OUTPUT);
-Serial.begin(9600);
- pinMode(buttonPin1, INPUT_PULLUP);
- pinMode(buttonPin2, INPUT_PULLUP);
- pinMode(buttonPin3, INPUT_PULLUP);
- pinMode(buttonPin4, INPUT_PULLUP);
+  lcd.begin(16, 2); // Set up LCD's number of colums and  rows 
+pinMode(actuator, OUTPUT); // Declare actuator pin as an OUTPUT
+Serial.begin(9600); // Initialize Serial Monitor with baud rate of 9600
+ pinMode(buttonPin1, INPUT_PULLUP);  // Declare PB1 as an INPUT PULLUP
+ pinMode(buttonPin2, INPUT_PULLUP);  // Declare PB2 as an INPUT PULLUP
+ pinMode(buttonPin3, INPUT_PULLUP);  // Declare PB3 as an INPUT PULLUP
+ pinMode(buttonPin4, INPUT_PULLUP);  // Declare PB4 as an INPUT PULLUP
 }
 
 void loop() {
-   // Debounce and button actions
+ // Read value of all four PB
  buttonState1 = digitalRead(buttonPin1);
  buttonState2 = digitalRead(buttonPin2);
  buttonState3 = digitalRead(buttonPin3);
  buttonState4 = digitalRead(buttonPin4);
 
-   // put your main code here, to run repeatedly:
+   // Debounce and button actions 
 PV = analogRead(sensor);
 currentMillis = millis();
 
 if (currentMillis - previousMillis >= interval){
   previousMillis = currentMillis;
-  Error = setPoint-PV;
+  Error = setPoint-PV;  // Error is SP - PV
+  // Ierror = iGain*intergralAction
   int Ierror= (iGain*integralAction);
-  integralAction = (integralAction + Error);
-  CO = ((pGain *Error)+(Ierror));
+   // The Integral is the Accumulation of the Error
+  integralAction = (integralAction + Error);  
+  CO = ((pGain *Error)+(Ierror));  // The controller output is P control + I control
+
 if ( Ierror >=255){
-  Ierror = 255;
+  Ierror = 255; // put a maximum value of 255 on Ierror.
 }
   if (CO > 255) {
   CO = 255; // If CO is greater than 255, set it to 255
@@ -71,45 +81,45 @@ analogWrite(actuator, CO);
   if (!buttonState1 && lastButtonState1 && (millis() - lastButtonPress1) > debounceDelay) {
    currentPage--;
    if (currentPage < 0) currentPage = 3;
-   lastButtonPress1 = millis();
+   lastButtonPress1 = millis();  // Update the last time PB1 press 
  }
- lastButtonState1 = buttonState1;
+ lastButtonState1 = buttonState1; // Store current PB1 state
 
 
  if (!buttonState2 && lastButtonState2 && (millis() - lastButtonPress2) > debounceDelay) {
    currentPage++;
    if (currentPage > 3) currentPage = 0;
-   lastButtonPress2 = millis();
+   lastButtonPress2 = millis();  // Update the last time PB2 press
  }
- lastButtonState2 = buttonState2;
+ lastButtonState2 = buttonState2; // Store current PB2 state
 
 
    if (!buttonState3 && lastButtonState3 && (millis() - lastButtonPress3) > debounceDelay) {
    if (currentPage == 0) {
-     setPoint += 30;
+     setPoint += 30; // increase setPoint by 30 if on the screen 0
    } else if (currentPage == 2) {
-     pGain += 0.01;
+     pGain += 0.01; // increase pGain by 0.01 if on the screen 2
    }
-   else if (currentPage == 3) {
-     iGain += 0.01;
+   else if (currentPage == 3) { 
+     iGain += 0.01; // increase iGain by 0.01 if on the screen 3
    }
-   lastButtonPress3 = millis();
+   lastButtonPress3 = millis(); // Update the last time PB3 press 
  }
- lastButtonState3 = buttonState3;
+ lastButtonState3 = buttonState3;  // Store current PB3 state
 
 
  if (!buttonState4 && lastButtonState4 && (millis() - lastButtonPress4) > debounceDelay) {
    if (currentPage == 0) {
-     setPoint -= 20 ;
+     setPoint -= 30 ; // degrease setPoint by 30 if on the screen 0
    } else if (currentPage == 2) {
-     pGain -= 0.01;
+     pGain -= 0.01; // degrease pGain by 0.01 if on the screen 2
    }
    else if (currentPage == 3) {
-     iGain -= 0.01;
+     iGain -= 0.01; // degrease iGain by 0.01 if on the screen 3
    }
-   lastButtonPress4 = millis();
+   lastButtonPress4 = millis(); // Update the last time PB4 press 
  }
- lastButtonState4 = buttonState4;
+ lastButtonState4 = buttonState4; // Update the last time PB4 press 
 
 
  // Update the LCD display based on currentPage
